@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Currency API</title>
+  </head>
+  <body>
+    <!--The SELECT element.-->
+
+    <select id="sel" onchange="show(this)">
+      <option value="">-- Select --</option>
+    </select>
+
+    <p id="msg"></p>
+
+    <!-- =============================== -->
+    <button id="currency-btn">Show Currency</button>
+
+    <div id="results" style="border: 1px solid red"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+      // Populate option list with currencies
+      window.onload = populateSelect();
+
+      function populateSelect() {
+        var xhr = new XMLHttpRequest(),
+          method = "GET",
+          overrideMimeType = "application/json",
+          url = "./curr.json";
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            let currencies = JSON.parse(xhr.responseText);
+            // console.log(currencies);
+            let ele = document.getElementById("sel");
+            console.log(ele);
+            for(var props in currencies) {
+              // console.log(props + ": " + currencies[props]);
+              
+              let opts = document.createElement("option");
+              opts.value = props[props];
+              opts.innerHTML = props;
+              ele.appendChild(opts);
+            }
+          }
+        };
+        xhr.open(method, url, true);
+        xhr.send();
+      }
+
+      function show(ele) {
+        // GET THE SELECTED VALUE FROM <select> ELEMENT AND SHOW IT.
+        var msg = document.getElementById("msg");
+        msg.innerHTML =
+          "Selected Base Currency: <b>" +
+          ele.options[ele.selectedIndex].text +
+          "</b> </br>"
+          //  +
+          // "Symbols: <b>" +
+          // ele.value +
+          // "</b>"
+          ;
+      }
+    </script>
+    <script>
+      $("#currency-btn").click(function () {
+        let baseCurr = "USD";
+        var requestURL = `https://api.exchangerate.host/latest?base=${baseCurr}&places=2`;
+        var req = new XMLHttpRequest();
+        req.open("GET", requestURL);
+        req.responseType = "json";
+        req.send();
+
+        req.onload = function () {
+          var response = req.response;
+
+          // console.log("Response received!");
+          // console.log(response);
+          // console.log(JSON.stringify(response));
+
+          printIn(response);
+        };
+
+        // renderResults(response);
+      });
+
+      function printIn(rsp) {
+        for (var prop in rsp) {
+          // console.log(prop + ": " + rsp[prop]);
+          if (prop === "rates") {
+            for (var rate in rsp[prop]) {
+              console.log(rate + ": " + rsp[prop][rate]);
+              var resultsDiv = document.getElementById("results");
+              resultsDiv.innerHTML += rate + ": " + rsp[prop][rate] + "<br>";
+            }
+            // console.log("rates: ");
+            // console.log(rsp[prop]);
+          } else if (prop === "base") {
+            console.log("base: " + rsp[prop]);
+          }
+        }
+      }
+
+      function renderResults(rs) {
+        var displayTheRs = document.getElementById("results");
+        console.log("Element: ");
+        console.log(displayTheRs);
+        // displayTheRs.innerHTML = " ";
+        var html = "";
+        for (var i = 0; i < rs.length; i++) {
+          console.log("rs[i]: ");
+          console.log(rs[i]);
+          //   html += "<div class='result'>";
+          //   html += "<h2>" + rs[i].base + "</h2>";
+          //   html += "<p>" + rs[i].date + "</p>";
+          //   html += "</div>";
+        }
+        // displayTheRs.innerText(html);
+        // $("#results").html(html);
+        $("#results").html(html);
+      }
+    </script>
+  </body>
+</html>
