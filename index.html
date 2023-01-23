@@ -9,16 +9,16 @@
   <body>
     <!--The SELECT element.-->
 
-    <select id="sel" onchange="show(this)">
+    <select id="sel" onchange="show(this)" style="width: 150px;">
       <option value="">-- Select --</option>
     </select>
 
     <p id="msg"></p>
 
     <!-- =============================== -->
-    <button id="currency-btn">Show Currency</button>
+    <button id="currency-btn" style="width: 150px;">Show Currency</button>
 
-    <div id="results" style="border: 1px solid red"></div>
+    <div id="results"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script>
@@ -29,19 +29,19 @@
         var xhr = new XMLHttpRequest(),
           method = "GET",
           overrideMimeType = "application/json",
-          url = "./curr.json";
+          url = "./coinage.json";
 
         xhr.onreadystatechange = function () {
           if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
             let currencies = JSON.parse(xhr.responseText);
             // console.log(currencies);
             let ele = document.getElementById("sel");
-            console.log(ele);
+            // console.log(ele);
             for(var props in currencies) {
               // console.log(props + ": " + currencies[props]);
               
               let opts = document.createElement("option");
-              opts.value = props[props];
+              opts.value = props[props.code] + props[props.symbol];
               opts.innerHTML = props;
               ele.appendChild(opts);
             }
@@ -51,23 +51,29 @@
         xhr.send();
       }
 
+      let baseCurr = "";
+
       function show(ele) {
-        // GET THE SELECTED VALUE FROM <select> ELEMENT AND SHOW IT.
+        // GET THE SELECTED VALUE FROM <select> ELEMENT AND DISPLAY IT:
         var msg = document.getElementById("msg");
-        msg.innerHTML =
-          "Selected Base Currency: <b>" +
-          ele.options[ele.selectedIndex].text +
-          "</b> </br>"
-          //  +
-          // "Symbols: <b>" +
-          // ele.value +
-          // "</b>"
-          ;
+        let coin = ele.options[ele.selectedIndex].text;
+        baseCurr = coin;
+        console.log("inside show() baseCurr: " + baseCurr);
+        msg.innerHTML = "Selected Base Currency: <b>" + coin + "</b> </br>";
       }
-    </script>
-    <script>
+      
+      function test() {
+        if(baseCurr) {
+          console.log("inside test() baseCurr: " + baseCurr);
+        } else {
+          console.log("inside test(): baseCurr not seclecte yet!");
+        }
+        
+      }
+   
       $("#currency-btn").click(function () {
-        let baseCurr = "USD";
+        test()
+        console.log("inside click listener: baseCurr: " + baseCurr);
         var requestURL = `https://api.exchangerate.host/latest?base=${baseCurr}&places=2`;
         var req = new XMLHttpRequest();
         req.open("GET", requestURL);
@@ -80,7 +86,7 @@
           // console.log("Response received!");
           // console.log(response);
           // console.log(JSON.stringify(response));
-
+          console.log("BASE COINAGE: " + baseCurr);
           printIn(response);
         };
 
@@ -96,8 +102,6 @@
               var resultsDiv = document.getElementById("results");
               resultsDiv.innerHTML += rate + ": " + rsp[prop][rate] + "<br>";
             }
-            // console.log("rates: ");
-            // console.log(rsp[prop]);
           } else if (prop === "base") {
             console.log("base: " + rsp[prop]);
           }
@@ -108,18 +112,12 @@
         var displayTheRs = document.getElementById("results");
         console.log("Element: ");
         console.log(displayTheRs);
-        // displayTheRs.innerHTML = " ";
         var html = "";
         for (var i = 0; i < rs.length; i++) {
           console.log("rs[i]: ");
           console.log(rs[i]);
-          //   html += "<div class='result'>";
-          //   html += "<h2>" + rs[i].base + "</h2>";
-          //   html += "<p>" + rs[i].date + "</p>";
-          //   html += "</div>";
+          
         }
-        // displayTheRs.innerText(html);
-        // $("#results").html(html);
         $("#results").html(html);
       }
     </script>
